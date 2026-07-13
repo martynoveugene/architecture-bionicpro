@@ -391,7 +391,7 @@
   "otpPolicyLookAheadWindow" : 1,
   "otpPolicyPeriod" : 30,
   "otpPolicyCodeReusable" : false,
-  "otpSupportedApplications" : [ "totpAppFreeOTPName", "totpAppMicrosoftAuthenticatorName", "totpAppGoogleName" ],
+  "otpSupportedApplications" : [ "totpAppMicrosoftAuthenticatorName", "totpAppFreeOTPName", "totpAppGoogleName" ],
   "webAuthnPolicyRpEntityName" : "keycloak",
   "webAuthnPolicySignatureAlgorithms" : [ "ES256" ],
   "webAuthnPolicyRpId" : "",
@@ -457,6 +457,27 @@
     "clientRoles" : {
       "bionicpro-auth" : [ "user" ]
     },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "15d84dc7-6d8c-4425-a456-f8ddc95c0ed4",
+    "createdTimestamp" : 1783972123549,
+    "username" : "martynov0eugene",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : false,
+    "firstName" : "eugene",
+    "lastName" : "martynov",
+    "email" : "martynov0eugene@yandex.ru",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "federatedIdentities" : [ {
+      "identityProvider" : "yandex",
+      "userId" : "930225120",
+      "userName" : "martynov0eugene"
+    } ],
+    "realmRoles" : [ "default-roles-reports-realm" ],
     "notBefore" : 0,
     "groups" : [ ]
   }, {
@@ -526,7 +547,7 @@
     "id" : "4f2b3ea4-09c9-4b33-a48a-fc2e0e2c06a3",
     "username" : "user1",
     "enabled" : true,
-    "totp" : false,
+    "totp" : true,
     "emailVerified" : false,
     "firstName" : "User",
     "lastName" : "One",
@@ -537,6 +558,13 @@
       "createdDate" : 1783931191423,
       "secretData" : "{\"value\":\"qNGdHuPFimNG2e0BbS7VxEVlxoJpXlGFjObdqfXcxeQ=\",\"salt\":\"SsLSBzVgyAW/0HOa6d+IDA==\",\"additionalParameters\":{}}",
       "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+    }, {
+      "id" : "a4dfd71b-2ddb-4f80-a170-833661c0545f",
+      "type" : "otp",
+      "userLabel" : "",
+      "createdDate" : 1783957143784,
+      "secretData" : "{\"value\":\"rIG6s7FcDaMpuf43ontV\"}",
+      "credentialData" : "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA1\"}"
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
@@ -547,7 +575,7 @@
     "id" : "5536185d-d20c-44d0-ac2c-877df21c96ad",
     "username" : "user2",
     "enabled" : true,
-    "totp" : false,
+    "totp" : true,
     "emailVerified" : false,
     "firstName" : "User",
     "lastName" : "Two",
@@ -558,6 +586,13 @@
       "createdDate" : 1783931191532,
       "secretData" : "{\"value\":\"4zTl9SpKyKmZnR+E7oETcKt8k0zKWBuK476P75dm+U8=\",\"salt\":\"4AI6gj03MfpaPhVgHvVnwQ==\",\"additionalParameters\":{}}",
       "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+    }, {
+      "id" : "d8dd3844-79a0-4ae6-b95b-0bafa9917dae",
+      "type" : "otp",
+      "userLabel" : "",
+      "createdDate" : 1783957405624,
+      "secretData" : "{\"value\":\"J42RFpj2B5eboQxW7QCe\"}",
+      "credentialData" : "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA1\"}"
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
@@ -1331,7 +1366,27 @@
   "enabledEventTypes" : [ ],
   "adminEventsEnabled" : false,
   "adminEventsDetailsEnabled" : false,
-  "identityProviders" : [ ],
+  "identityProviders" : [ {
+    "alias" : "yandex",
+    "internalId" : "02266780-c14f-4fa8-981f-b6e2d7303734",
+    "providerId" : "yandex",
+    "enabled" : true,
+    "updateProfileFirstLoginMode" : "on",
+    "trustEmail" : false,
+    "storeToken" : false,
+    "addReadTokenRoleOnCreate" : false,
+    "authenticateByDefault" : false,
+    "linkOnly" : false,
+    "firstBrokerLoginFlowAlias" : "first broker login",
+    "config" : {
+      "hideOnLoginPage" : "false",
+      "clientId" : "c8cc41fbd9504182aaec8fc3d52a6619",
+      "acceptsPromptNoneForwardFromClient" : "false",
+      "disableUserInfo" : "false",
+      "syncMode" : "IMPORT",
+      "clientSecret" : "04bddccbbcfe47149ced63e005c5d51c"
+    }
+  } ],
   "identityProviderMappers" : [ ],
   "components" : {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy" : [ {
@@ -1940,7 +1995,7 @@
       "userSetupAllowed" : false
     }, {
       "authenticatorFlow" : true,
-      "requirement" : "CONDITIONAL",
+      "requirement" : "REQUIRED",
       "priority" : 20,
       "autheticatorFlow" : true,
       "flowAlias" : "Browser - Conditional OTP",
@@ -2174,7 +2229,7 @@
     "cibaInterval" : "5",
     "realmReusableOtpCode" : "false"
   },
-  "keycloakVersion" : "21.1.2",
+  "keycloakVersion" : "21.1.1",
   "userManagedAccessAllowed" : false,
   "clientProfiles" : {
     "profiles" : [ ]
