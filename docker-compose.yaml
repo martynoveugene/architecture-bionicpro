@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   keycloak_db:
@@ -40,3 +40,18 @@ services:
       REACT_APP_KEYCLOAK_URL: http://localhost:8080
       REACT_APP_KEYCLOAK_REALM: reports-realm
       REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
+
+  bionicpro-auth:
+    build:
+      context: ./bionicpro-auth
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      BPAPI_KEYCLOAK_INTERNAL_URI: http://keycloak:8080
+      BPAPI_KEYCLOAK_EXTERNAL_URI: http://localhost:8080
+      BPAPI_KEYCLOAK_REALM: reports-realm
+#      BPAPI_KEYCLOAK_CLIENT_ID: reports-api
+#      BPAPI_KEYCLOAK_CLIENT_SECRET: oNwoLQdvJAvRcL89SydqCWCe5ry1jMgq
+      BPAPI_KEYCLOAK_CLIENT_ID: bionicpro-auth
+      BPAPI_KEYCLOAK_CLIENT_SECRET: 27b699e3827ac84164ae43290e76f045
