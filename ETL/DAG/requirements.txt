@@ -1,0 +1,2 @@
+apache-airflow-providers-postgres==6.0.0
+clickhouse-connect==0.7.19

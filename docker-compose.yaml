@@ -11,6 +11,8 @@ services:
       - ./postgres-keycloak-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    profiles:
+      - auth
   keycloak:
     #image: quay.io/keycloak/keycloak:21.1
     image: playaru/keycloak-russian:21.1.1
@@ -33,6 +35,10 @@ services:
       - "8080:8080"
     depends_on:
       - keycloak_db
+    profiles:
+      - auth
+
+
   frontend:
     build:
       context: ./frontend
@@ -44,6 +50,8 @@ services:
       REACT_APP_KEYCLOAK_URL: http://localhost:8080
       REACT_APP_KEYCLOAK_REALM: reports-realm
       REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
+    profiles:
+      - auth
 
   bionicpro-auth:
     build:
@@ -59,6 +67,8 @@ services:
 #      BPAPI_KEYCLOAK_CLIENT_SECRET: oNwoLQdvJAvRcL89SydqCWCe5ry1jMgq
       BPAPI_KEYCLOAK_CLIENT_ID: bionicpro-auth
       BPAPI_KEYCLOAK_CLIENT_SECRET: 27b699e3827ac84164ae43290e76f045
+    profiles:
+      - auth
 
   openldap:
     image: osixia/openldap:1.5.0
@@ -70,9 +80,97 @@ services:
 
       # (cn=admin,dc=bionic,dc=com)
       LDAP_ADMIN_PASSWORD: "1234"
+#      LDAP_REMOVE_CONFIG_AFTER_SETUP: "false"
 
       LDAP_TLS: "false"
     volumes:
       - ./ldap/config.ldif:/import/config.ldif:ro
+#      - ./ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
     ports:
       - "389:389"
+    profiles:
+      - auth
+
+  postgres_bio_sensor:
+    image: postgres:15-alpine
+    container_name: postgres_bio_sensor
+    environment:
+      POSTGRES_USER: biouser
+      POSTGRES_PASSWORD: biopassword
+      POSTGRES_DB: sensor
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./ETL/source/postgres_bio_sensor/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./ETL/source/postgres_bio_sensor/data.csv:/tmp/data.csv
+    profiles:
+      - etl
+
+
+  clickhouse_bio_analytics:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: clickhouse_bio_analytics
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_USER: clickuser
+      CLICKHOUSE_PASSWORD: clickpassword
+      CLICKHOUSE_DB: bio_analytics
+    volumes:
+      - chdata:/var/lib/clickhouse
+      - ./ETL/destination/clickhouse_bio_analytics/ch_init.sql:/docker-entrypoint-initdb.d/ch_init.sql
+    profiles:
+      - etl
+
+  airflow-init:
+    image: apache/airflow:2.8.1-python3.11
+    container_name: airflow_init
+    command: >
+      bash -c "pip install apache-airflow-providers-postgres clickhouse-connect && airflow db init && airflow users create --username admin --firstname Adm --lastname Adminov --role Admin --email admin@example.com --password admin"
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - airflow_home:/opt/airflow
+    profiles:
+      - etl
+
+  airflow-webserver:
+    image: apache/airflow:2.8.1-python3.11
+    container_name: airflow_webserver
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    ports:
+      - "9080:8080"
+    command: bash -c "pip install apache-airflow-providers-postgres clickhouse-connect && airflow webserver"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - airflow_home:/opt/airflow
+      - ./ETL/DAG:/opt/airflow/dags
+    profiles:
+      - etl
+
+  airflow-scheduler:
+    image: apache/airflow:2.8.1-python3.11
+    container_name: airflow_scheduler
+    depends_on:
+      airflow-webserver:
+        condition: service_healthy
+    command: bash -c "pip install apache-airflow-providers-postgres clickhouse-connect && airflow scheduler"
+    volumes:
+      - airflow_home:/opt/airflow
+      - ./ETL/DAG:/opt/airflow/dags
+    profiles:
+      - etl
+
+
+volumes:
+  pgdata:
+  chdata:
+  airflow_home:
