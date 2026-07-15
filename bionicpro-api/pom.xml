@@ -42,8 +42,8 @@
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.9.8</version> <!-- Актуальная стабильная версия -->
-            <classifier>all</classifier> <!-- Включает абсолютно все зависимости и классы -->
+            <version>0.9.8</version>
+            <classifier>all</classifier>
         </dependency>
 
         <dependency>
