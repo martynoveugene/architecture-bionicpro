@@ -13,6 +13,7 @@ services:
       - "5433:5432"
     profiles:
       - auth
+
   keycloak:
     #image: quay.io/keycloak/keycloak:21.1
     image: playaru/keycloak-russian:21.1.1
@@ -46,10 +47,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      REACT_APP_API_URL: http://localhost:8000
-      REACT_APP_KEYCLOAK_URL: http://localhost:8080
-      REACT_APP_KEYCLOAK_REALM: reports-realm
-      REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
+      REACT_APP_AUTH_URL: http://localhost:8000
+#      REACT_APP_API_URL: http://localhost:8001
+#      REACT_APP_KEYCLOAK_URL: http://localhost:8080
+#      REACT_APP_KEYCLOAK_REALM: reports-realm
+#      REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
     profiles:
       - auth
 
@@ -67,8 +69,27 @@ services:
 #      BPAPI_KEYCLOAK_CLIENT_SECRET: oNwoLQdvJAvRcL89SydqCWCe5ry1jMgq
       BPAPI_KEYCLOAK_CLIENT_ID: bionicpro-auth
       BPAPI_KEYCLOAK_CLIENT_SECRET: 27b699e3827ac84164ae43290e76f045
+      REPORTS_API_INTERNAL_URL: http://bionicpro-api:8001
     profiles:
       - auth
+
+
+  bionicpro-api:
+    build:
+      context: ./bionicpro-api
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:clickhouse://clickhouse-bio-analytics:8123/bio_analytics
+      SPRING_DATASOURCE_USERNAME: clickuser
+      SPRING_DATASOURCE_PASSWORD: clickpassword
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.clickhouse.jdbc.ClickHouseDriver
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/reports-realm/protocol/openid-connect/certs
+
+    profiles:
+      - auth
+
 
   openldap:
     image: osixia/openldap:1.5.0
@@ -108,9 +129,9 @@ services:
       - etl
 
 
-  clickhouse_bio_analytics:
+  clickhouse-bio-analytics:
     image: clickhouse/clickhouse-server:24.3-alpine
-    container_name: clickhouse_bio_analytics
+    container_name: clickhouse-bio-analytics
     ports:
       - "8123:8123"
       - "9000:9000"
@@ -123,6 +144,7 @@ services:
       - ./ETL/destination/clickhouse_bio_analytics/ch_init.sql:/docker-entrypoint-initdb.d/ch_init.sql
     profiles:
       - etl
+      - auth
 
   airflow-init:
     image: apache/airflow:2.8.1-python3.11

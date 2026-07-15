@@ -1,5 +1,6 @@
 package com.bionicpro.auth;
 
+import com.bionicpro.auth.encryption.EncryptedOAuth2AuthorizedClientService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,7 @@ public class SecurityConfig {
 
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           EncryptedOAuth2AuthorizedClientService authorizedClientService
-                          ){
+    ){
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.authorizedClientService = authorizedClientService;
     }
@@ -42,17 +43,20 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         // Защита от фиксации сессии: при логине старый ID сессии уничтожается, создается новый
                         .sessionFixation(sessionFixation -> sessionFixation.newSession())
-                        // Ограничение: один пользователь — одна активная сессия одновременно (опционально)
+                        // один пользователь — одна активная сессия одновременно
                         .maximumSessions(1)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // для проверки сессии и информации о юзере
                         .requestMatchers("/api/user-info").permitAll()
+                        // Это будет проксировано в API-сервис
+                        .requestMatchers("/reports/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(
+                .oauth2Login(  // Authorization Code Flow + PKCE + Secret
                         oauth2 -> oauth2
                                 .authorizedClientService(authorizedClientService)
-                ) // Authorization Code Flow + PKCE + Secret
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
@@ -75,7 +79,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000/"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

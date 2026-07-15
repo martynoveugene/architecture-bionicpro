@@ -1,4 +1,4 @@
-package com.bionicpro.auth;
+package com.bionicpro.auth.encryption;
 
 import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;

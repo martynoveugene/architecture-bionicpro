@@ -1,4 +1,4 @@
-package com.bionicpro.auth;
+package com.bionicpro.auth.encryption;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
@@ -7,8 +7,6 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 
 @Service
 public class EncryptedOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {

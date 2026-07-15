@@ -4,7 +4,7 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 import clickhouse_connect
 
 CLICKHOUSE_CONN = {
-    'host': 'clickhouse_bio_analytics',
+    'host': 'clickhouse-bio-analytics',
     'port': 8123,
     'user': 'clickuser',
     'password': 'clickpassword',
