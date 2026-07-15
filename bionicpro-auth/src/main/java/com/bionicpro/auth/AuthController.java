@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -80,19 +82,22 @@ public class AuthController {
     }
 
     @GetMapping("/reports/{day}")
-    public Map<String, Object> proxyGetReportByDay(
+    public ResponseEntity<Resource> proxyGetReportByDay(
             @PathVariable String day,
             OAuth2AuthenticationToken authentication
     ) {
         String jwtToken = getAccessToken(authentication);
 
-        return restClient.get()
+        ResponseEntity<Resource> response = restClient.get()
                 .uri("/reports/{day}", day)
                 .header("Authorization", "Bearer " + jwtToken)
                 .retrieve()
-                .body(new ParameterizedTypeReference<Map<String, Object>>() {});
-    }
+                .toEntity(Resource.class);
 
+        return ResponseEntity.status(response.getStatusCode())
+                .headers(response.getHeaders())
+                .body(response.getBody());
+    }
 
     private String getAccessToken(OAuth2AuthenticationToken authentication) {
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
