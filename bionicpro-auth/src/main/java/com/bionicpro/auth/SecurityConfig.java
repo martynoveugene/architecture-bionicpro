@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -56,8 +57,10 @@ public class SecurityConfig {
                 .oauth2Login(  // Authorization Code Flow + PKCE + Secret
                         oauth2 -> oauth2
                                 .authorizedClientService(authorizedClientService)
+                                .defaultSuccessUrl("http://localhost:3000/", true)
                 )
                 .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)

@@ -4,7 +4,7 @@ export default function ReportPage() {
   const [dates, setDates] = useState<string[]>([]);
   const [downloadingDay, setDownloadingDay] = useState<string | null>(null);
 
-  const url = process.env.REACT_APP_AUTH_URL || 'http://localhost:8000';
+  const url = process.env.REACT_APP_AUTH_URL;
 
   useEffect(() => {
     fetch(`${url}/reports`, { credentials: 'include' })
@@ -15,26 +15,12 @@ export default function ReportPage() {
 const downloadReport = async (day: string) => {
   setDownloadingDay(day);
   try {
-    const res = await fetch(`${url}/reports/${day}`, { credentials: 'include' });
-
-    if (!res.ok) throw new Error('Ошибка сервера');
-
-    const blob = await res.blob();
-
-    const downloadUrl = window.URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', `report-${day}.txt`);
-    document.body.appendChild(link);
-    link.click();
-
-    link.remove();
-    window.URL.revokeObjectURL(downloadUrl);
+    window.location.href = `${url}/reports/${day}`;
   } catch (err) {
     alert('Ошибка при скачивании файла отчета');
+    console.error(err);
   } finally {
-    setDownloadingDay(null);
+    setTimeout(() => setDownloadingDay(null), 1000);
   }
 };
 

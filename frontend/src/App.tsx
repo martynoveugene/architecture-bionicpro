@@ -11,9 +11,13 @@ const App: React.FC = () => {
       .then(data => {
         if (data.authenticated) {
           setUser(data);
+          setLoading(false);
         } else {
           window.location.href = data.loginUrl;
         }
+      })
+      .catch(err => {
+        console.error("Ошибка сети:", err);
         setLoading(false);
       });
   }, []);
@@ -22,20 +26,18 @@ const App: React.FC = () => {
     window.location.href = `${process.env.REACT_APP_AUTH_URL}/logout`;
   };
 
-  if (loading) return <div>Загрузка ...</div>;
+  if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Загрузка ...</div>;
 
   return (
-      <div className="App">
-        <header style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#f5f5f5' }}>
-          <span>Вы вошли как: <b>{user?.name || user?.email}</b></span>
-          <button onClick={handleLogout} style={{ cursor: 'pointer', padding: '5px 10px' }}>
-            Выйти
-          </button>
-        </header>
+    <div className="App">
+      <header style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#f5f5f5', alignItems: 'center' }}>
+        <span>Вы вошли как: <b>{user?.name || user?.email}</b></span>
 
-        <ReportPage />
-      </div>
-    );
+      </header>
+
+      <ReportPage />
+    </div>
+  );
 };
 
 export default App;
