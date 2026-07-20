@@ -161,6 +161,8 @@ services:
     ports:
       - "9080:8080"
     command: bash -c "pip install apache-airflow-providers-postgres clickhouse-connect && airflow webserver"
+    environment:
+      AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql://biouser:biopassword@postgres_bio_sensor:5432/sensor
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 10s
@@ -177,6 +179,8 @@ services:
       airflow-webserver:
         condition: service_healthy
     command: bash -c "pip install apache-airflow-providers-postgres clickhouse-connect && airflow scheduler"
+    environment:
+      AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql://biouser:biopassword@postgres_bio_sensor:5432/sensor
     volumes:
       - airflow_home:/opt/airflow
       - ./ETL/DAG:/opt/airflow/dags
