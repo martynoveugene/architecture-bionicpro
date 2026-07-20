@@ -1,0 +1,32 @@
+server:
+  port: 8000
+  servlet:
+    session:
+      cookie:
+        http-only: true   # Запрещает React читать куку JSESSIONID
+        secure: false     # true для HTTPS будет на продакшене
+      timeout: 30m        # Время жизни сессии
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${BPAPI_KEYCLOAK_CLIENT_ID}
+            client-secret: ${BPAPI_KEYCLOAK_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          keycloak:
+            token-uri: ${BPAPI_KEYCLOAK_INTERNAL_URI}/realms/${BPAPI_KEYCLOAK_REALM:reports-realm}/protocol/openid-connect/token
+            jwk-set-uri: ${BPAPI_KEYCLOAK_INTERNAL_URI}/realms/${BPAPI_KEYCLOAK_REALM:reports-realm}/protocol/openid-connect/certs
+#            user-info-uri: ${BPAPI_KEYCLOAK_INTERNAL_URI}/realms/${BPAPI_KEYCLOAK_REALM:reports-realm}/protocol/openid-connect/userinfo
+            authorization-uri: ${BPAPI_KEYCLOAK_EXTERNAL_URI}/realms/${BPAPI_KEYCLOAK_REALM:reports-realm}/protocol/openid-connect/auth
+            end-session-uri: ${BPAPI_KEYCLOAK_EXTERNAL_URI}/realms/${BPAPI_KEYCLOAK_REALM:reports-realm}/protocol/openid-connect/logout
+            user-name-attribute: preferred_username

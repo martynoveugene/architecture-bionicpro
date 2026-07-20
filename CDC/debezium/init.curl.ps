@@ -1,0 +1,2 @@
+$jsonConfig = Get-Content -Encoding UTF8 .\debezium-config.json -Raw
+Invoke-RestMethod -Method Post -Uri "http://localhost:8083/connectors/" -Headers @{"Accept"="application/json"; "Content-Type"="application/json"} -Body $jsonConfig

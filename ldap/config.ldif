@@ -1,16 +1,16 @@
 # Организационные подразделения (OU)
-dn: ou=People,dc=example,dc=com
+dn: ou=people,dc=bionic,dc=com
 objectClass: top
 objectClass: organizationalUnit
-ou: People
+ou: people
 
-dn: ou=Groups,dc=example,dc=com
+dn: ou=groups,dc=bionic,dc=com
 objectClass: top
 objectClass: organizationalUnit
-ou: Groups
+ou: groups
 
 # Пользователи
-dn: uid=john.doe,ou=People,dc=example,dc=com
+dn: uid=john.doe,ou=people,dc=bionic,dc=com
 objectClass: top
 objectClass: inetOrgPerson
 cn: John
@@ -19,7 +19,7 @@ uid: john.doe
 mail: john@example.com
 userPassword: password
 
-dn: uid=jane.smith,ou=People,dc=example,dc=com
+dn: uid=jane.smith,ou=people,dc=bionic,dc=com
 objectClass: top
 objectClass: inetOrgPerson
 cn: Jane
@@ -28,7 +28,8 @@ uid: jane.smith
 mail: jane@example.com
 userPassword: password
 
-dn: uid=alex,ou=People,dc=example,dc=com
+dn: uid=alex.johnson,ou=people,dc=bionic,dc=com
+objectClass: top
 objectClass: inetOrgPerson
 cn: Alex
 sn: Johnson
@@ -37,13 +38,13 @@ mail: alex@example.com
 userPassword: password
 
 # Роли
-dn: cn=user,ou=Groups,dc=example,dc=com
+dn: cn=user,ou=groups,dc=bionic,dc=com
 objectClass: groupOfNames
 cn: user
-member: uid=jane.smith,ou=People,dc=example,dc=com
+member: uid=jane.smith,ou=people,dc=bionic,dc=com
 
-dn: cn=prothetic_user,ou=Groups,dc=example,dc=com
+dn: cn=prothetic_user,ou=groups,dc=bionic,dc=com
 objectClass: groupOfNames
 cn: prothetic_user
-member: uid=alex.johnson,ou=People,dc=example,dc=com
-member: uid=john.doe,ou=People,dc=example,dc=com
+member: uid=alex.johnson,ou=people,dc=bionic,dc=com
+member: uid=john.doe,ou=people,dc=bionic,dc=com

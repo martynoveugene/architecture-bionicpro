@@ -1,75 +1,58 @@
-import React, { useState } from 'react';
-import { useKeycloak } from '@react-keycloak/web';
+import React, { useEffect, useState } from 'react';
 
-const ReportPage: React.FC = () => {
-  const { keycloak, initialized } = useKeycloak();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function ReportPage() {
+  const [dates, setDates] = useState<string[]>([]);
+  const [downloadingDay, setDownloadingDay] = useState<string | null>(null);
 
-  const downloadReport = async () => {
-    if (!keycloak?.token) {
-      setError('Not authenticated');
-      return;
-    }
+  const url = process.env.REACT_APP_AUTH_URL;
 
-    try {
-      setLoading(true);
-      setError(null);
+  useEffect(() => {
+    fetch(`${url}/reports`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setDates(data));
+  }, [url]);
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/reports`, {
-        headers: {
-          'Authorization': `Bearer ${keycloak.token}`
-        }
-      });
-
-      
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!initialized) {
-    return <div>Loading...</div>;
+const downloadReport = async (day: string) => {
+  setDownloadingDay(day);
+  try {
+    window.location.href = `${url}/reports/${day}`;
+  } catch (err) {
+    alert('Ошибка при скачивании файла отчета');
+    console.error(err);
+  } finally {
+    setTimeout(() => setDownloadingDay(null), 1000);
   }
-
-  if (!keycloak.authenticated) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-        <button
-          onClick={() => keycloak.login()}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Login
-        </button>
-      </div>
-    );
-  }
+};
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6">Usage Reports</h1>
-        
-        <button
-          onClick={downloadReport}
-          disabled={loading}
-          className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          {loading ? 'Generating Report...' : 'Download Report'}
-        </button>
-
-        {error && (
-          <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-            {error}
-          </div>
-        )}
+    <div className="dashboard-container" style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div className="sidebar" style={{ width: '100%' }}>
+        <div className="dashboard-title">Выгрузка отчетов</div>
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>Дата отчета</th>
+              <th style={{ textAlign: 'right' }}>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dates.map(day => (
+              <tr key={day} className="table-row">
+                <td><strong>Отчет за {day}</strong></td>
+                <td style={{ textAlign: 'right' }}>
+                  <button
+                    className="btn-action btn-download"
+                    disabled={downloadingDay === day}
+                    onClick={() => downloadReport(day)}
+                  >
+                    {downloadingDay === day ? 'Генерация...' : '⬇ Скачать (.txt)'}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-};
-
-export default ReportPage;
+}
